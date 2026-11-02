@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroInfluencer - Autonomous Video Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0f1016;
+      --card-bg: #181924;
+      --card-border: #28293d;
+      --primary: #9b72cf;
+      --primary-light: #c8b0e8;
+      --primary-glow: rgba(155, 114, 207, 0.35);
+      --accent: #00d2ff;
+      --text-main: #f3f4f8;
+      --text-muted: #9598ab;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: rgba(24, 25, 36, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 16px var(--primary-glow);
+    }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #ffffff, var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: rgba(155, 114, 207, 0.18);
+      color: var(--primary-light);
+      border: 1px solid rgba(155, 114, 207, 0.3);
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .api-badge {
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .api-badge.active {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .api-badge.inactive {
+      background: rgba(239, 68, 68, 0.12);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-secondary {
+      background: #232536;
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #2e3047;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1240px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 32px 20px;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 32px;
+    }
+
+    @media (max-width: 980px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .studio-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .panel-card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Switch Groups */
+    .switch-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .switch-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .switch-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .segmented-control {
+      background: #11121b;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 4px;
+      display: flex;
+      gap: 4px;
+    }
+
+    .segmented-control button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .segmented-control button.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    /* Image Gen Policy Cards */
+    .policy-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 640px) {
+      .policy-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .policy-card {
+      background: #11121b;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .policy-card:hover {
+      border-color: rgba(155, 114, 207, 0.4);
+    }
+
+    .policy-card.active {
+      border-color: var(--primary);
+      background: rgba(155, 114, 207, 0.08);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+
+    .policy-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .policy-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Input Box */
+    .input-label {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .topic-input-container {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .topic-input {
+      width: 100%;
+      background: #11121b;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .topic-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .quick-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-chip:hover {
+      background: rgba(155, 114, 207, 0.15);
+      border-color: var(--primary);
+      color: var(--text-main);
+    }
+
+    .btn-create {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), #8254c9);
+      border: none;
+      color: white;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 6px 20px var(--primary-glow);
+      transition: transform 0.15s, opacity 0.2s;
+    }
+
+    .btn-create:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    .btn-create:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Player & Gallery Panel */
+    .preview-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .video-viewport {
+      background: #09090e;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 420px;
+      position: relative;
+    }
+
+    .video-viewport video {
+      width: 100%;
+      max-height: 520px;
+      object-fit: contain;
+      background: black;
+    }
+
+    .placeholder-state {
+      padding: 40px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+    }
+
+    .placeholder-mascot {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: rgba(155, 114, 207, 0.1);
+      border: 2px dashed rgba(155, 114, 207, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+
+    .gallery-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .gallery-item {
+      background: #11121b;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .gallery-item:hover {
+      border-color: var(--primary);
+    }
+
+    .gallery-item-title {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 220px;
+    }
+
+    .gallery-item-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      max-width: 580px;
+      width: 100%;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .guide-step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(155, 114, 207, 0.2);
+      color: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    .step-content a {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .pro-recommendation-box {
+      background: linear-gradient(135deg, rgba(155, 114, 207, 0.15), rgba(0, 210, 255, 0.08));
+      border: 1px solid rgba(155, 114, 207, 0.3);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 18px 0;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .pro-badge {
+      background: linear-gradient(90deg, #ff8a00, #e52e71);
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pro-text {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #e2e4f0;
+    }
+
+    .key-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .key-input {
+      flex: 1;
+      background: #11121b;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: white;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .key-input:focus {
+      border-color: var(--primary);
+    }
+
+    .progress-modal {
+      text-align: center;
+      padding: 10px;
+    }
+
+    .progress-bar-container {
+      background: #11121b;
+      border-radius: 20px;
+      height: 12px;
+      width: 100%;
+      overflow: hidden;
+      margin: 20px 0;
+      border: 1px solid var(--card-border);
+    }
+
+    .progress-bar-fill {
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .stepper-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+      margin-top: 18px;
+    }
+
+    .stepper-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .stepper-item.current {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .stepper-item.done {
+      color: var(--success);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">💜</div>
+      <div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="brand-title">AeroInfluencer</span>
+          <span class="brand-badge">Engine v2.0</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div id="apiKeyBadge" class="api-badge inactive" onclick="openOnboardingModal()">
+        <span id="apiKeyDot">●</span>
+        <span id="apiKeyText">Configurar Google Studio</span>
+      </div>
+      <button class="btn-secondary" onclick="openSettingsModal()">⚙️ Ajustes</button>
+    </div>
+  </header>
+
+  <!-- Main Grid -->
+  <main>
+    <div class="studio-panel">
+      <div class="panel-card">
+        <h2>🎬 Configuração da Produção</h2>
+
+        <!-- Switch 1: Aspect Ratio & Switch 2: Video Type -->
+        <div class="switch-row">
+          <div>
+            <label class="switch-label">Orientação de Tela</label>
+            <div class="segmented-control" id="aspectRatioGroup">
+              <button type="button" class="active" data-val="vertical" onclick="setAspectRatio('vertical')">
+                📱 Vertical (9:16 Shorts)
+              </button>
+              <button type="button" data-val="horizontal" onclick="setAspectRatio('horizontal')">
+                💻 Horizontal (16:9 Vídeo)
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="switch-label">Formato de Conteúdo</label>
+            <div class="segmented-control" id="videoTypeGroup">
+              <button type="button" class="active" data-val="shorts" onclick="setVideoType('shorts')">
+                ⚡ Shorts (Direto 40s)
+              </button>
+              <button type="button" data-val="full_video" onclick="setVideoType('full_video')">
+                🎬 Vídeo (Investigativo)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Switch 3: Image Generation Policy -->
+        <label class="switch-label">Política de Geração de Imagens (Settings)</label>
+        <div class="policy-cards" id="policyGroup">
+          <div class="policy-card" data-val="NEVER" onclick="setImageGenMode('NEVER')">
+            <div class="policy-title">🚫 NEVER</div>
+            <div class="policy-desc">Zero IA em imagens. Captura 100% de páginas reais e notícias raspadas da web.</div>
+          </div>
+          <div class="policy-card active" data-val="AUTO" onclick="setImageGenMode('AUTO')">
+            <div class="policy-title">⚡ AUTO <span style="font-size:10px; color:#34d399;">(Recomendado)</span></div>
+            <div class="policy-desc">Smart Hybrid: Usa prints reais e gera apenas por necessidade para preencher lacunas.</div>
+          </div>
+          <div class="policy-card" data-val="ALWAYS" onclick="setImageGenMode('ALWAYS')">
+            <div class="policy-title">🎨 ALWAYS</div>
+            <div class="policy-desc">Gera 100% dos cenários e ilustrações via IA para máxima consistência e arte.</div>
+          </div>
+        </div>
+
+        <!-- Topic or News URL -->
+        <label class="input-label" for="topicInput">Tema do Vídeo ou URL de Notícia</label>
+        <div class="topic-input-container">
+          <input type="text" id="topicInput" class="topic-input" placeholder="Ex: Hackers cozinham comida em 700 freezers de supermercados na Europa" value="Hackers cozinham comida em 700 freezers de supermercados na Europa">
+        </div>
+
+        <div class="quick-chips">
+          <div class="quick-chip" onclick="setTopic('Hackers cozinham comida em 700 freezers de supermercados na Europa')">❄️ Cyberattack em Supermercados</div>
+          <div class="quick-chip" onclick="setTopic('DeepSeek-V3 causa terremoto no Vale do Silício')">🤖 Terremoto DeepSeek-V3</div>
+          <div class="quick-chip" onclick="setTopic('Descoberta de oceano habitável na lua Europa pela NASA')">🪐 Oceano em Europa (NASA)</div>
+          <div class="quick-chip" onclick="setTopic('Falha crítica de dia zero no protocolo Bluetooth')">📡 Zero-Day no Bluetooth</div>
+        </div>
+
+        <button id="btnCreate" class="btn-create" onclick="startGeneration()">
+          <span>🚀 Iniciar Produção Autônoma</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Preview & History Sidebar -->
+    <div class="preview-panel">
+      <div class="video-viewport" id="viewportContainer">
+        <div class="placeholder-state" id="playerPlaceholder">
+          <div class="placeholder-mascot">👧🏻💜</div>
+          <div style="font-weight: 700; color: var(--text-main);">Nova está no estúdio</div>
+          <div style="font-size: 13px;">Gere seu vídeo para assistir à renderização com troca inteligente de lados!</div>
+        </div>
+        <video id="videoPlayer" controls style="display: none;"></video>
+      </div>
+
+      <div class="panel-card" style="padding: 18px;">
+        <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px;">📁 Histórico de Vídeos Gerados</h3>
+        <div class="gallery-list" id="galleryList">
+          <div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 12px;">Carregando histórico...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Onboarding / Google AI Studio Modal -->
+  <div class="modal-overlay" id="onboardingModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Bem-vindo ao AeroInfluencer! 🚀</div>
+        <button class="btn-close" onclick="closeOnboardingModal()">✕</button>
+      </div>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.5;">
+        O AeroInfluencer é um estúdio autônomo que transforma notícias da web em Shorts verticais e vídeos documentários completos apresentados pela mascote 2D <strong>Nova</strong> com troca de lados dinâmica, legendas de retenção e enquadramento real de páginas.
+      </p>
+
+      <div class="guide-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          Acesse o <a href="https://aistudio.google.com/" target="_blank">Google AI Studio (aistudio.google.com)</a> e faça login com sua conta Google.
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          Crie um projeto e clique em <strong>"Get API Key"</strong> para gerar sua chave de acesso gratuita ao Gemini 2.5.
+        </div>
+      </div>
+
+      <!-- Google AI Pro recommendation -->
+      <div class="pro-recommendation-box">
+        <span class="pro-badge">Dica Google AI Pro</span>
+        <div class="pro-text">
+          Recomendamos fortemente a assinatura do <strong>Google AI Pro / Gemini Advanced</strong>. Isso garante limites massivos de tokens por minuto, roteirização instantânea sem filas e raciocínio profundo de alto nível para vídeos investigativos!
+        </div>
+      </div>
+
+      <div class="guide-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          Cole sua chave de API abaixo para inicializar o cérebro interno do aplicativo:
+        </div>
+      </div>
+
+      <div class="key-input-row">
+        <input type="password" id="apiKeyInput" class="key-input" placeholder="Cole sua chave AI Studio aqui (AIzaSy...)">
+        <button class="btn-secondary" onclick="saveApiKey()">Validar & Conectar</button>
+      </div>
+      <div id="apiFeedback" style="font-size: 12px; margin-top: 8px; font-weight: 600;"></div>
+    </div>
+  </div>
+
+  <!-- Progress Stepper Modal -->
+  <div class="modal-overlay" id="progressModal">
+    <div class="modal-box progress-modal">
+      <div style="font-size: 38px; margin-bottom: 8px;">🎬</div>
+      <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">Produzindo Vídeo...</h3>
+      <p id="progressMessage" style="font-size: 13px; color: var(--text-muted);">Iniciando motores...</p>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressBarFill"></div>
+      </div>
+
+      <div class="stepper-steps">
+        <div class="stepper-item" id="step1"><span>●</span> 1. AI Director Screenplay (Roteiro e Emoções)</div>
+        <div class="stepper-item" id="step2"><span>●</span> 2. Síntese de Voz Orgânica e Corte de Pausas</div>
+        <div class="stepper-item" id="step3"><span>●</span> 3. Alinhamento Acústico Whisper e Legendas</div>
+        <div class="stepper-item" id="step4"><span>●</span> 4. Web Hunter: Captura e Enquadramento DOM</div>
+        <div class="stepper-item" id="step5"><span>●</span> 5. Animação da Nova: Squash, Sombra e Lados</div>
+        <div class="stepper-item" id="step6"><span>●</span> 6. Renderização Master FFmpeg</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentConfig = {
+      aspect_ratio: 'vertical',
+      video_type: 'shorts',
+      image_gen_mode: 'AUTO',
+      google_gemini_api_key: null
+    };
+
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/config');
+        const data = await res.json();
+        currentConfig = data;
+
+        // Update UI switches
+        setAspectRatio(data.aspect_ratio || 'vertical', false);
+        setVideoType(data.video_type || 'shorts', false);
+        setImageGenMode(data.image_gen_mode || 'AUTO', false);
+
+        // Update API badge
+        const badge = document.getElementById('apiKeyBadge');
+        const dot = document.getElementById('apiKeyDot');
+        const text = document.getElementById('apiKeyText');
+
+        if (data.has_api_key) {
+          badge.className = 'api-badge active';
+          dot.textContent = '●';
+          text.textContent = 'Google AI Studio: Conectado';
+        } else {
+          badge.className = 'api-badge inactive';
+          dot.textContent = '●';
+          text.textContent = 'Configurar Chave Google';
+          // Open onboarding automatically on first launch
+          openOnboardingModal();
+        }
+      } catch (e) {
+        console.error('Config load failed', e);
+      }
+    }
+
+    async function loadVideos() {
+      try {
+        const res = await fetch('/api/videos');
+        const videos = await res.json();
+        const list = document.getElementById('galleryList');
+        if (!videos || videos.length === 0) {
+          list.innerHTML = '<div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 12px;">Nenhum vídeo ainda. Gere o primeiro!</div>';
+          return;
+        }
+        list.innerHTML = videos.map(v => `
+          <div class="gallery-item" onclick="playVideo('${v.url}')">
+            <div>
+              <div class="gallery-item-title">${v.filename}</div>
+              <div class="gallery-item-meta">${v.size_mb} MB • Clique para assistir</div>
+            </div>
+            <a href="${v.url}" download style="color:var(--primary-light); text-decoration:none; font-size:16px;">⬇️</a>
+          </div>
+        `).join('');
+
+        // Play the most recent video if available
+        if (videos.length > 0) {
+          playVideo(videos[0].url);
+        }
+      } catch (e) {
+        console.error('Failed to load videos', e);
+      }
+    }
+
+    function playVideo(url) {
+      const player = document.getElementById('videoPlayer');
+      const placeholder = document.getElementById('playerPlaceholder');
+      player.src = url;
+      player.style.display = 'block';
+      placeholder.style.display = 'none';
+      player.play().catch(() => {});
+    }
+
+    function setAspectRatio(val, sync = true) {
+      currentConfig.aspect_ratio = val;
+      document.querySelectorAll('#aspectRatioGroup button').forEach(b => {
+        b.classList.toggle('active', b.dataset.val === val);
+      });
+      if (sync) saveSettings();
+    }
+
+    function setVideoType(val, sync = true) {
+      currentConfig.video_type = val;
+      document.querySelectorAll('#videoTypeGroup button').forEach(b => {
+        b.classList.toggle('active', b.dataset.val === val);
+      });
+      if (sync) saveSettings();
+    }
+
+    function setImageGenMode(val, sync = true) {
+      currentConfig.image_gen_mode = val;
+      document.querySelectorAll('#policyGroup .policy-card').forEach(c => {
+        c.classList.toggle('active', c.dataset.val === val);
+      });
+      if (sync) saveSettings();
+    }
+
+    function setTopic(text) {
+      document.getElementById('topicInput').value = text;
+    }
+
+    async function saveSettings() {
+      try {
+        await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(currentConfig)
+        });
+      } catch (e) {
+        console.error('Settings save failed', e);
+      }
+    }
+
+    function openOnboardingModal() {
+      document.getElementById('onboardingModal').classList.add('open');
+    }
+
+    function closeOnboardingModal() {
+      document.getElementById('onboardingModal').classList.remove('open');
+    }
+
+    function openSettingsModal() {
+      openOnboardingModal();
+    }
+
+    async function saveApiKey() {
+      const key = document.getElementById('apiKeyInput').value.trim();
+      const fb = document.getElementById('apiFeedback');
+      if (!key) {
+        fb.style.color = '#f87171';
+        fb.textContent = 'Insira uma chave válida.';
+        return;
+      }
+      fb.style.color = '#9b72cf';
+      fb.textContent = 'Validando chave com Google AI Studio...';
+
+      try {
+        const res = await fetch('/api/validate-key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key: key })
+        });
+        const data = await res.json();
+        if (data.valid) {
+          fb.style.color = '#34d399';
+          fb.textContent = 'Chave conectada e validada com sucesso!';
+          setTimeout(() => {
+            closeOnboardingModal();
+            loadConfig();
+          }, 1200);
+        } else {
+          fb.style.color = '#f87171';
+          fb.textContent = data.message || 'Chave inválida. Verifique no AI Studio.';
+        }
+      } catch (e) {
+        fb.style.color = '#f87171';
+        fb.textContent = 'Erro ao contactar o servidor.';
+      }
+    }
+
+    async function startGeneration() {
+      const topic = document.getElementById('topicInput').value.trim();
+      if (!topic) return;
+
+      const btn = document.getElementById('btnCreate');
+      btn.disabled = true;
+
+      const modal = document.getElementById('progressModal');
+      modal.classList.add('open');
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic: topic,
+            aspect_ratio: currentConfig.aspect_ratio,
+            video_type: currentConfig.video_type,
+            image_gen_mode: currentConfig.image_gen_mode
+          })
+        });
+        const data = await res.json();
+        const jobId = data.job_id;
+        pollProgress(jobId);
+      } catch (e) {
+        alert('Erro ao iniciar produção: ' + e.message);
+        modal.classList.remove('open');
+        btn.disabled = false;
+      }
+    }
+
+    function pollProgress(jobId) {
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/status/${jobId}`);
+          const job = await res.json();
+
+          const bar = document.getElementById('progressBarFill');
+          const msg = document.getElementById('progressMessage');
+          bar.style.width = job.progress + '%';
+          msg.textContent = job.message;
+
+          // Update stepper steps
+          if (job.progress >= 10) document.getElementById('step1').className = 'stepper-item done';
+          if (job.progress >= 25) document.getElementById('step2').className = 'stepper-item done';
+          if (job.progress >= 45) document.getElementById('step3').className = 'stepper-item done';
+          if (job.progress >= 55) document.getElementById('step4').className = 'stepper-item done';
+          if (job.progress >= 75) document.getElementById('step5').className = 'stepper-item done';
+          if (job.progress >= 92) document.getElementById('step6').className = 'stepper-item done';
+
+          if (job.status === 'completed') {
+            clearInterval(interval);
+            setTimeout(() => {
+              document.getElementById('progressModal').classList.remove('open');
+              document.getElementById('btnCreate').disabled = false;
+              loadVideos();
+              if (job.video_filename) {
+                playVideo(`/api/video/${job.video_filename}`);
+              }
+            }, 1000);
+          } else if (job.status === 'failed') {
+            clearInterval(interval);
+            alert('Erro durante produção: ' + (job.error || 'Falha desconhecida'));
+            document.getElementById('progressModal').classList.remove('open');
+            document.getElementById('btnCreate').disabled = false;
+          }
+        } catch (e) {
+          console.error('Polling error', e);
+        }
+      }, 1000);
+    }
+
+    // Initialize
+    loadConfig();
+    loadVideos();
+  </script>
+</body>
+</html>
