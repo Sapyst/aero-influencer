@@ -1,50 +1,40 @@
 # Guia Oficial Android - Execução 100% Local no Celular 📱
 
-O **AeroInfluencer** foi projetado para rodar **100% de forma autônoma e local no próprio aparelho celular Android**, sem depender de nenhum PC, servidor externo ou nuvem proprietária.
+O **AeroInfluencer** roda **100% de forma autônoma e interna no próprio aparelho celular Android**, sem depender de nenhum PC, servidor externo ou comando de terminal.
 
 ---
 
-### Opção 1: Inicializador Nativo 1-Clique (100% On-Device Standalone) 🚀
+### Opção 1: APK Standalone Nativo (Recomendado - 1-Clique) 📦
 
-Esta é a maneira mais rápida e eficiente de rodar o motor Python completo e o FFmpeg nativo aproveitando todos os núcleos do processador ARM64 do seu celular:
+Todo o motor de inteligência artificial, o interpretador Python 3, o backend FastAPI e o binário estático do FFmpeg ARM64 estão **embutidos diretamente dentro do arquivo APK** (~110-130 MB).
 
-1. **Baixe o Termux** no seu celular:
-   - [Termux no F-Droid](https://f-droid.org/packages/com.termux/) ou [GitHub Oficial do Termux](https://github.com/termux/termux-app/releases) *(evite a versão antiga da Play Store)*.
-
-2. **Abra o Termux e cole este comando único:**
-   ```bash
-   curl -sL https://raw.githubusercontent.com/Sapyst/aero-influencer/main/android_setup.sh | bash
-   ```
-
-3. **O que acontece automaticamente:**
-   - O instalador configura o interpretador Python 3 ARM64, FFmpeg nativo e bibliotecas de vídeo.
-   - Baixa o AeroInfluencer e cria o comando de atalho `aero`.
-   - Inicia o motor em `127.0.0.1:8000` e abre a interface do estúdio direto no seu navegador mobile em tela cheia.
-   - **Para abrir o estúdio quando quiser no celular, basta abrir o Termux e digitar:**
-     ```bash
-     aero
-     ```
+1. **Baixe o APK:**
+   - Acesse os [Releases do GitHub](https://github.com/Sapyst/aero-influencer/releases/tag/v1.0.0-standalone) e baixe `AeroInfluencer-Android.apk`.
+2. **Instale:**
+   - Toque no arquivo `.apk` baixado e confirme a instalação no Android (permita instalar de fontes desconhecidas se solicitado).
+3. **Abra e Use:**
+   - Ao tocar no ícone do aplicativo, o **AeroInfluencer** inicia o interpretador Python e o servidor local de forma invisível em segundo plano.
+   - A interface do estúdio Dark Cyber-Glass se abre em tela cheia.
+   - Digite o tema que desejar ou cole uma notícia, escolha a voz e o avatar, e toque em **Iniciar Produção Autônoma**.
+   - Os vídeos gerados são salvos automaticamente na pasta pública de Filmes/Downloads do celular (`/storage/emulated/0/Movies/AeroInfluencer`) e aparecem instantaneamente na sua Galeria e no Google Fotos!
 
 ---
 
-### Opção 2: APK Standalone com Motor Embutido (Chaquopy + FFmpegKit) 📦
+### Como o Motor Roda Internamente no APK ⚙️
 
-Para transformar todo o motor em um único arquivo `.apk` auto-instalável que roda em segundo plano:
-
-1. **Chaquopy Runtime:**
-   - O plugin Gradle `com.chaquo.python:17.2.0` compila o CPython 3.11 para arquiteturas `arm64-v8a`.
-   - Empacota os módulos (`fastapi`, `uvicorn`, `pillow`, `edge-tts`, `google-genai`).
-
-2. **FFmpegKit Integrado:**
-   - Adicione `dev.ffmpegkit-maintained:ffmpeg-kit-full:8.1.7` ao `build.gradle` para permitir renderização de vídeo nativa dentro do processo do APK.
-
-3. **Ciclo de Vida do App:**
-   - Ao clicar no ícone do aplicativo, o `MainActivity` inicia o interpretador Python em uma thread de background.
-   - O WebView carrega a interface do estúdio e executa o pipeline localmente.
+- **Runtime Python:** Embutido via Chaquopy (`com.chaquo.python:17.2.0`), compilado especificamente para processadores ARM64 (`arm64-v8a`).
+- **Renderizador de Vídeo FFmpeg:** Binário estático ELF 64-bit ARM64 empacotado em `jniLibs/arm64-v8a/libffmpeg.so`, executado diretamente com aceleração nativa.
+- **Vozes Neurais:** Síntese neural Edge TTS em alta definição com alinhamento acústico automatizado.
+- **Armazenamento e Privacidade:** 100% offline para renderização, usando a sua própria chave gratuita do Google AI Studio para geração de roteiros. Zero dados enviados para terceiros.
 
 ---
 
-### 🛡️ Privacidade e Custos Zero
-- Todo o processamento (roteiro, download de áudio, renderização e animação) roda no processador do seu aparelho.
-- As chamadas de IA utilizam a sua própria chave gratuita do Google AI Studio configurada no app.
-- Zero tráfego enviado para servidores de terceiros.
+### Opção 2: Instalação Manual via Termux (Avançado) 💻
+
+Para desenvolvedores que desejam modificar o código-fonte diretamente no celular:
+
+```bash
+curl -sL https://raw.githubusercontent.com/Sapyst/aero-influencer/main/android_setup.sh | bash
+```
+
+Abra o Termux e digite `aero` a qualquer momento para abrir o estúdio.

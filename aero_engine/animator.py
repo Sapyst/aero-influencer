@@ -31,7 +31,7 @@ SPRITE_ALIASES = {
     "laughing": "nova_laughing_giggle.png"
 }
 
-from aero_engine.config import ASSETS_DIR
+from aero_engine.config import ASSETS_DIR, FFMPEG_BIN
 
 SPRITES_DIR = ASSETS_DIR / "pngtuber_sprites"
 
@@ -176,7 +176,7 @@ def generate_cue_clip(
         canvas.save(frames_dir / f"f_{f_idx:05d}.png")
 
     cmd = [
-        "ffmpeg", "-y", "-framerate", str(fps),
+        FFMPEG_BIN, "-y", "-framerate", str(fps),
         "-i", str(frames_dir / "f_%05d.png"),
         "-c:v", "qtrle", "-pix_fmt", "argb",
         str(out_path)
@@ -212,7 +212,7 @@ def render_character_track(
             f.write(f"file '{cp.resolve()}'\n")
 
     subprocess.run([
-        "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat_file),
+        FFMPEG_BIN, "-y", "-f", "concat", "-safe", "0", "-i", str(concat_file),
         "-c:v", "qtrle", str(out_mov)
     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 

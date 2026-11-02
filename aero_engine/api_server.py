@@ -325,3 +325,15 @@ def on_startup():
     sc = get_scheduler_config()
     if sc.enabled:
         start_background_scheduler()
+
+def start_mobile_server(port: int = 8000):
+    import uvicorn
+    config = uvicorn.Config(
+        app=app,
+        host="127.0.0.1",
+        port=port,
+        log_level="error",
+        access_log=False
+    )
+    server = uvicorn.Server(config)
+    server.run()

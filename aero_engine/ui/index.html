@@ -1333,6 +1333,15 @@
     let pollInterval = null;
     let selectedVideoFilename = null;
 
+    const API_BASE = (window.location.protocol === 'capacitor:' || window.location.protocol === 'file:' || (window.location.hostname === 'localhost' && window.location.port !== '8000'))
+      ? 'http://127.0.0.1:8000'
+      : '';
+
+    function apiFetch(url, options) {
+      const fullUrl = (url && url.startsWith('/')) ? `${API_BASE}${url}` : `${API_BASE}/${url}`;
+      return fetch(fullUrl, options);
+    }
+
     // Toast Alert Helper
     function showToast(msg, type = 'info') {
       const container = document.getElementById('toastContainer');
@@ -1406,7 +1415,7 @@
 
     async function syncConfig() {
       try {
-        await fetch('/api/config', {
+        await apiFetch('/api/config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(appConfig)
@@ -1417,7 +1426,7 @@
     // Load initial config
     async function loadConfig() {
       try {
-        const res = await fetch('/api/config');
+        const res = await apiFetch('/api/config');
         const data = await res.json();
         appConfig = data;
 
@@ -1443,7 +1452,7 @@
     // Load Gallery Videos
     async function loadVideos() {
       try {
-        const res = await fetch('/api/videos');
+        const res = await apiFetch('/api/videos');
         const videos = await res.json();
         const list = document.getElementById('historyList');
         if (!videos || videos.length === 0) {
@@ -1476,14 +1485,15 @@
     }
 
     function playVideo(url, filename) {
+      const fullUrl = (url && url.startsWith('/') && API_BASE) ? `${API_BASE}${url}` : url;
       const p = document.getElementById('videoPlayer');
-      p.src = url;
+      p.src = fullUrl;
       p.style.display = 'block';
       document.getElementById('viewportPlaceholder').style.display = 'none';
       document.getElementById('nowPlayingText').textContent = filename || 'Vídeo selecionado';
       
       const btnDl = document.getElementById('btnDownload');
-      btnDl.href = url;
+      btnDl.href = fullUrl;
       btnDl.style.display = 'inline-flex';
 
       const btnSeo = document.getElementById('btnOpenSeo');
@@ -1514,7 +1524,7 @@
       updateProgressUI(5, 'Iniciando pipeline autônomo...');
 
       try {
-        const res = await fetch('/api/generate', {
+        const res = await apiFetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1545,7 +1555,7 @@
     async function checkJobStatus() {
       if (!currentJobId) return;
       try {
-        const res = await fetch(`/api/status/${currentJobId}`);
+        const res = await apiFetch(`/api/status/${currentJobId}`);
         const job = await res.json();
 
         updateProgressUI(job.progress || 10, job.message || 'Processando...');
@@ -1603,7 +1613,7 @@
     async function openSeoModalFor(filename) {
       selectedVideoFilename = filename;
       try {
-        const res = await fetch(`/api/video/${filename}/seo`);
+        const res = await apiFetch(`/api/video/${filename}/seo`);
         const data = await res.json();
         document.getElementById('seoTitle').value = data.title || '';
         document.getElementById('seoDesc').value = data.description || '';
@@ -1640,7 +1650,7 @@
       fb.textContent = 'Validando chave com Google AI Studio...';
 
       try {
-        const res = await fetch('/api/validate-key', {
+        const res = await apiFetch('/api/validate-key', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ api_key: key })
@@ -1670,7 +1680,7 @@
       fb.style.color = '#a78bfa';
       fb.textContent = 'Validando...';
       try {
-        const res = await fetch('/api/validate-key', {
+        const res = await apiFetch('/api/validate-key', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ api_key: key })
@@ -1694,7 +1704,7 @@
     // Avatar Studio Tab Logic
     async function loadAvatarStudio() {
       try {
-        const res = await fetch('/api/avatar/base-expressions');
+        const res = await apiFetch('/api/avatar/base-expressions');
         const exprs = await res.json();
         const container = document.getElementById('expressionsContainer');
         container.innerHTML = exprs.map(e => `
@@ -1721,7 +1731,7 @@
     // Voice Studio Tab Logic
     async function loadVoiceStudio() {
       try {
-        const res = await fetch('/api/voice/list');
+        const res = await apiFetch('/api/voice/list');
         const voices = await res.json();
         
         // Populate Studio Voice Select
@@ -1755,7 +1765,7 @@
       }
       showToast('Sintetizando amostra com Edge TTS...', 'info');
       try {
-        const res = await fetch('/api/voice/sample', {
+        const res = await apiFetch('/api/voice/sample', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ voice_id: voiceId })
@@ -1780,7 +1790,7 @@
     // Scheduler Tab Logic
     async function loadScheduler() {
       try {
-        const res = await fetch('/api/scheduler');
+        const res = await apiFetch('/api/scheduler');
         const data = await res.json();
         document.getElementById('autoSchedulerToggle').checked = data.enabled || false;
         document.getElementById('schedulerTimesInput').value = (data.alarm_times || []).join(', ');
@@ -1794,7 +1804,7 @@
       const cats = document.getElementById('schedulerCategoriesInput').value.split(',').map(s=>s.trim()).filter(Boolean);
 
       try {
-        await fetch('/api/scheduler', {
+        await apiFetch('/api/scheduler', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ enabled: enabled, alarm_times: times, categories: cats })

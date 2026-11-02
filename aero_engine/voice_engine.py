@@ -5,6 +5,7 @@ import wave
 from pathlib import Path
 from typing import List, Dict, Tuple
 import numpy as np
+from aero_engine.config import FFMPEG_BIN
 try:
     from faster_whisper import WhisperModel
     HAS_WHISPER = True
@@ -80,7 +81,7 @@ async def synthesize_voice_segments(
         await communicate.save(str(raw_mp3))
 
         subprocess.run([
-            "ffmpeg", "-y", "-i", str(raw_mp3),
+            FFMPEG_BIN, "-y", "-i", str(raw_mp3),
             "-ar", "44100", "-ac", "1",
             str(raw_wav)
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
@@ -98,7 +99,7 @@ def assemble_master_audio(
     work_dir = out_master_wav.parent
     gap_wav = work_dir / "inter_gap.wav"
     subprocess.run([
-        "ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono",
+        FFMPEG_BIN, "-y", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono",
         "-t", f"{inter_gap_sec:.3f}", str(gap_wav)
     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
@@ -110,15 +111,19 @@ def assemble_master_audio(
                 f.write(f"file '{gap_wav.resolve()}'\n")
 
     subprocess.run([
-        "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat_txt),
+        FFMPEG_BIN, "-y", "-f", "concat", "-safe", "0", "-i", str(concat_txt),
         "-ar", "44100", "-ac", "2", str(out_master_wav)
     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
-    res = subprocess.run([
-        "ffprobe", "-v", "error", "-show_entries", "format=duration",
-        "-of", "default=noprint_wrappers=1:nokey=1", str(out_master_wav)
-    ], stdout=subprocess.PIPE, text=True, check=True)
-    return float(res.stdout.strip())
+    try:
+        with wave.open(str(out_master_wav), "rb") as wf:
+            return float(wf.getnframes()) / float(wf.getframerate())
+    except Exception:
+        res = subprocess.run([
+            "ffprobe", "-v", "error", "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1", str(out_master_wav)
+        ], stdout=subprocess.PIPE, text=True, check=True)
+        return float(res.stdout.strip())
 
 def align_words(audio_wav: Path, script_text: str = "", language: str = "en") -> List[Dict]:
     if HAS_WHISPER:

@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 from typing import List, Dict
 
-from aero_engine.config import ASSETS_DIR
+from aero_engine.config import ASSETS_DIR, FFMPEG_BIN
 
 MUSIC_DEFAULT = ASSETS_DIR / "music" / "ambient_tension.wav"
 
@@ -28,7 +28,7 @@ def build_background_track(
             continue
         clip_file = bg_clips_dir / f"bg_{idx:02d}.mp4"
         cmd = [
-            "ffmpeg", "-y", "-loop", "1", "-i", str(sc["img"]),
+            FFMPEG_BIN, "-y", "-loop", "1", "-i", str(sc["img"]),
             "-t", f"{dur:.3f}",
             "-vf", f"scale={res_w}:{res_h}:force_original_aspect_ratio=increase,crop={res_w}:{res_h}",
             "-c:v", "libx264", "-pix_fmt", "yuv420p", "-r", "30",
@@ -44,7 +44,7 @@ def build_background_track(
 
     bg_full_track = work_dir / "bg_full_track.mp4"
     subprocess.run([
-        "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat_bg),
+        FFMPEG_BIN, "-y", "-f", "concat", "-safe", "0", "-i", str(concat_bg),
         "-c:v", "libx264", "-pix_fmt", "yuv420p", str(bg_full_track)
     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
@@ -80,7 +80,7 @@ def compose_final_video(
     )
 
     cmd_final = [
-        "ffmpeg", "-y",
+        FFMPEG_BIN, "-y",
         "-i", str(bg_video),
         "-i", str(char_video),
         "-i", str(voice_audio),

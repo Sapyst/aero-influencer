@@ -63,6 +63,30 @@ def generate_script(
     aspect_ratio: str = "vertical"
 ) -> DirectorScript:
     if api_key and len(api_key.strip()) > 15:
+        # 1. Try universal requests REST API (pure Python)
+        try:
+            import requests
+            prompt = f"Topic/News: {topic}\nFormat: {video_type.upper()}\nAspect Ratio: {aspect_ratio}\nGenerate the complete screenplay JSON matching the DirectorScript schema."
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key.strip()}"
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+                "generationConfig": {
+                    "temperature": 0.7,
+                    "responseMimeType": "application/json"
+                }
+            }
+            r = requests.post(url, json=payload, timeout=25)
+            if r.status_code == 200:
+                res_data = r.json()
+                cand_parts = res_data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+                if cand_parts and "text" in cand_parts[0]:
+                    data = json.loads(cand_parts[0]["text"])
+                    return DirectorScript(**data)
+        except Exception as e:
+            print(f"Notice: Gemini REST attempt error ({e}), trying SDK fallback...")
+
+        # 2. Try SDK if available
         try:
             from google import genai
             from google.genai import types
