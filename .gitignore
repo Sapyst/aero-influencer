@@ -1,0 +1,25 @@
+# Python & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Build & Dist Artifacts
+dist/
+build/
+*.egg-info/
+*.spec
+
+# Heavy Media & Test Render Outputs
+output/
+temp/
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.gif
+
+# System & OS
+.DS_Store
+Thumbs.db
