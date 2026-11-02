@@ -68,7 +68,7 @@ async def run_pipeline(
 
     # 3. Acoustic Word Alignment
     report("Alinhando sincronia labial e legendas (Whisper)...", 45)
-    words = align_words(master_wav)
+    words = align_words(master_wav, script_text=" ".join(spoken_texts))
     ass_path = work_dir / "subtitles.ass"
     build_ass_subtitles(words, ass_path, aspect_ratio=ar)
 

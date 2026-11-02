@@ -5,14 +5,18 @@ import wave
 from pathlib import Path
 from typing import List, Dict, Tuple
 import numpy as np
-import edge_tts
-from faster_whisper import WhisperModel
+try:
+    from faster_whisper import WhisperModel
+    HAS_WHISPER = True
+except ImportError:
+    WhisperModel = None
+    HAS_WHISPER = False
 
 _WHISPER_MODEL = None
 
 def get_whisper():
     global _WHISPER_MODEL
-    if _WHISPER_MODEL is None:
+    if HAS_WHISPER and _WHISPER_MODEL is None:
         _WHISPER_MODEL = WhisperModel("base", device="cpu", compute_type="int8")
     return _WHISPER_MODEL
 
@@ -116,18 +120,45 @@ def assemble_master_audio(
     ], stdout=subprocess.PIPE, text=True, check=True)
     return float(res.stdout.strip())
 
-def align_words(audio_wav: Path, language: str = "en") -> List[Dict]:
-    whisper = get_whisper()
-    segments, _ = whisper.transcribe(str(audio_wav), word_timestamps=True, language=language)
+def align_words(audio_wav: Path, script_text: str = "", language: str = "en") -> List[Dict]:
+    if HAS_WHISPER:
+        try:
+            whisper = get_whisper()
+            if whisper:
+                segments, _ = whisper.transcribe(str(audio_wav), word_timestamps=True, language=language)
+                words = []
+                for s in segments:
+                    for w in s.words:
+                        words.append({
+                            "word": w.word.strip(),
+                            "clean": w.word.strip().lower().replace(",", "").replace(".", "").replace("!", "").replace("?", ""),
+                            "start": float(w.start),
+                            "end": float(w.end)
+                        })
+                if words:
+                    return words
+        except Exception as e:
+            print(f"Whisper alignment note: {e}")
+
+    # Fallback: estimate word timings evenly across actual wav duration
+    try:
+        with wave.open(str(audio_wav), "rb") as wf:
+            total_sec = wf.getnframes() / float(wf.getframerate())
+    except Exception:
+        total_sec = 30.0
+
+    raw_words = [w.strip() for w in script_text.split() if w.strip()] if script_text else ["Aero", "Influencer", "Video"]
+    dur_per_word = max(0.15, total_sec / max(1, len(raw_words)))
     words = []
-    for s in segments:
-        for w in s.words:
-            words.append({
-                "word": w.word.strip(),
-                "clean": w.word.strip().lower().replace(",", "").replace(".", "").replace("!", "").replace("?", ""),
-                "start": float(w.start),
-                "end": float(w.end)
-            })
+    cur_t = 0.0
+    for w in raw_words:
+        words.append({
+            "word": w,
+            "clean": w.lower().replace(",", "").replace(".", "").replace("!", "").replace("?", ""),
+            "start": round(cur_t, 3),
+            "end": round(cur_t + dur_per_word * 0.9, 3)
+        })
+        cur_t += dur_per_word
     return words
 
 def build_ass_subtitles(
