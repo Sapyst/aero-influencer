@@ -2,7 +2,9 @@ import subprocess
 from pathlib import Path
 from typing import List, Dict
 
-MUSIC_DEFAULT = Path("/home/sapista/aero_influencer/assets/music/ambient_tension.wav")
+from aero_engine.config import ASSETS_DIR
+
+MUSIC_DEFAULT = ASSETS_DIR / "music" / "ambient_tension.wav"
 
 def build_background_track(
     scenes: List[Dict],

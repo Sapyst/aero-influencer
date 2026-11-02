@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 from typing import Callable, Optional, Dict, List
 
-from aero_engine.config import get_config, AeroConfig
+from aero_engine.config import get_config, AeroConfig, ASSETS_DIR, TEMP_DIR
 from aero_engine.ai_director import generate_script, DirectorScript
 from aero_engine.web_hunter import (
     search_duckduckgo_news,
@@ -25,7 +25,7 @@ from aero_engine.animator import (
 from aero_engine.image_generator import should_generate_image, generate_scene_image
 from aero_engine.renderer import build_background_track, compose_final_video
 
-DEFAULT_FALLBACK_BG = Path("/home/sapista/aero_influencer/assets/pngtuber_sprites/nova_neutral_transparent.png")
+DEFAULT_FALLBACK_BG = ASSETS_DIR / "pngtuber_sprites" / "nova_neutral_transparent.png"
 
 async def run_pipeline(
     topic: str,
@@ -40,7 +40,7 @@ async def run_pipeline(
     igm = image_gen_mode or cfg.image_gen_mode
 
     job_id = f"job_{int(time.time())}"
-    work_dir = Path("/home/sapista/aero_influencer/temp") / job_id
+    work_dir = TEMP_DIR / job_id
     work_dir.mkdir(parents=True, exist_ok=True)
 
     def report(msg: str, pct: int):

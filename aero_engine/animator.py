@@ -31,7 +31,9 @@ SPRITE_ALIASES = {
     "laughing": "nova_laughing_giggle.png"
 }
 
-SPRITES_DIR = Path("/home/sapista/aero_influencer/assets/pngtuber_sprites")
+from aero_engine.config import ASSETS_DIR
+
+SPRITES_DIR = ASSETS_DIR / "pngtuber_sprites"
 
 class CharacterCue(BaseModel):
     start: float

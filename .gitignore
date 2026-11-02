@@ -7,9 +7,13 @@ venv/
 
 # Build & Dist Artifacts
 dist/
+dist_windows/
 build/
 *.egg-info/
 *.spec
+*.tar.gz
+*.zip
+*.apk
 
 # Heavy Media & Test Render Outputs
 output/

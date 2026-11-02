@@ -6,7 +6,9 @@ from typing import List, Dict, Optional
 from PIL import Image
 import numpy as np
 
-AVATARS_DIR = Path("/home/sapista/aero_influencer/assets/avatars")
+from aero_engine.config import ASSETS_DIR
+
+AVATARS_DIR = ASSETS_DIR / "avatars"
 AVATARS_DIR.mkdir(parents=True, exist_ok=True)
 
 BASE_EXPRESSIONS = [
@@ -117,7 +119,7 @@ def generate_avatar_concept(
 
     # Fallback if no key or error: clone nova reference as candidate
     if not out_file.exists():
-        fallback_ref = Path("/home/sapista/aero_influencer/assets/pngtuber_sprites/nova_neutral_transparent.png")
+        fallback_ref = ASSETS_DIR / "pngtuber_sprites" / "nova_neutral_transparent.png"
         from shutil import copyfile
         copyfile(fallback_ref, out_file)
         

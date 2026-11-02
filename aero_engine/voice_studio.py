@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import Dict, List, Optional
 import edge_tts
 
-VOICES_DIR = Path("/home/sapista/aero_influencer/assets/voices")
+from aero_engine.config import ASSETS_DIR
+
+VOICES_DIR = ASSETS_DIR / "voices"
 VOICES_DIR.mkdir(parents=True, exist_ok=True)
 
 CURATED_VOICES = [

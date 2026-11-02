@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from aero_engine.config import get_config, save_config, validate_gemini_api_key, AeroConfig
+from aero_engine.config import get_config, save_config, validate_gemini_api_key, AeroConfig, ASSETS_DIR
 from aero_engine.pipeline import run_pipeline
 from aero_engine.avatar_studio import (
     list_avatars,
@@ -242,7 +242,7 @@ def api_avatar_generate_expression(req: AvatarExpressionRequest):
 @app.get("/api/avatar/preview/{avatar_id}")
 def api_avatar_preview(avatar_id: str):
     if avatar_id == "nova":
-        p = Path("/home/sapista/aero_influencer/assets/pngtuber_sprites/nova_neutral_transparent.png")
+        p = ASSETS_DIR / "pngtuber_sprites" / "nova_neutral_transparent.png"
     else:
         p = AVATARS_DIR / avatar_id / "master_reference.png"
         if not p.exists():
