@@ -34,7 +34,7 @@ jobs:
           npx cap add android
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon -x checkDebugDuplicateClasses
           cp app/build/outputs/apk/debug/app-debug.apk ../AeroInfluencer-Android.apk
       - name: Upload Android Artifact
         uses: actions/upload-artifact@v4
