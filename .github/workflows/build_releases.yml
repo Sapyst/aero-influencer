@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-linux:
@@ -18,6 +22,7 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.0-dev ffmpeg
           python -m pip install --upgrade pip
+          pip install --extra-index-url https://download.pytorch.org/whl/cpu torch
           pip install -r requirements.txt pywebview pyinstaller
       - name: Build Linux Binary
         run: |
@@ -44,6 +49,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install --extra-index-url https://download.pytorch.org/whl/cpu torch
           pip install -r requirements.txt pywebview pyinstaller
       - name: Build Windows EXE
         run: |
@@ -59,17 +65,50 @@ jobs:
           name: AeroInfluencer-Windows
           path: dist/AeroInfluencer-Windows-x64.zip
 
-  create-release:
-    needs: [build-linux, build-windows]
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Build Android APK with Capacitor
+        run: |
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap init "AeroInfluencer" "com.sapyst.aeroinfluencer" --web-dir aero_engine/ui
+          npx cap add android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../AeroInfluencer-Android.apk
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AeroInfluencer-Android
+          path: AeroInfluencer-Android.apk
+
+  publish-release:
+    needs: [build-linux, build-windows, build-android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
       - name: Publish Release Assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name || 'v1.0.0-standalone' }}
           files: |
             AeroInfluencer-Linux/AeroInfluencer-Linux-x86_64.tar.gz
             AeroInfluencer-Windows/AeroInfluencer-Windows-x64.zip
+            AeroInfluencer-Android/AeroInfluencer-Android.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
