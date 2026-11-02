@@ -68,3 +68,25 @@ http://localhost:8080
 - `image_generator.py`: Integração com Google Imagen/Gemini conforme a política configurada.
 - `renderer.py`: Compositor final FFmpeg multitrack com ducking automático de trilha de tensão.
 - `api_server.py`: Servidor FastAPI com endpoints REST e frontend integrado.
+
+---
+
+## 📦 Downloads dos Executáveis Prontos
+
+Para rodar direto na sua máquina sem precisar instalar Python ou configurar ambiente:
+
+- 🐧 **Linux (x86_64):** Baixe a versão standalone na [Aba de Releases](https://github.com/Sapyst/aero-influencer/releases/latest) e rode:
+  ```bash
+  tar -xzvf AeroInfluencer-Linux-x86_64.tar.gz
+  cd AeroInfluencer
+  ./AeroInfluencer
+  ```
+- 🪟 **Windows (.exe):** Em breve via GitHub Actions na página de Releases.
+- 📱 **Android (.apk):** Consulte o guia em [ANDROID_BUILD.md](ANDROID_BUILD.md).
+
+---
+
+## 📄 Licença (MIT License)
+
+Este projeto está sob a licença **MIT** — livre para qualquer pessoa usar, copiar, modificar, distribuir e integrar em seus projetos, com a única exigência de manter o aviso de copyright e a menção/crédito ao autor original (**Sapyst**).
+
