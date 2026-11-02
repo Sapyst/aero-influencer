@@ -1,0 +1,15 @@
+google-genai
+edge-tts
+faster-whisper
+selenium
+duckduckgo-search
+Pillow
+numpy
+fastapi
+uvicorn
+pydantic
+python-multipart
+pywebview
+requests
+python-dotenv
+tqdm

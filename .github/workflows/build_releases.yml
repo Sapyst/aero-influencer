@@ -1,0 +1,75 @@
+name: Build AeroInfluencer Binaries (Linux, Windows, Android)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.0-dev ffmpeg
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pywebview pyinstaller
+      - name: Build Linux Binary
+        run: |
+          pyinstaller --noconfirm --onedir --windowed \
+            --name "AeroInfluencer-Linux" \
+            --add-data "aero_engine:aero_engine" \
+            --add-data "assets:assets" \
+            desktop_app.py
+          cd dist && tar -czvf AeroInfluencer-Linux-x86_64.tar.gz AeroInfluencer-Linux
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AeroInfluencer-Linux
+          path: dist/AeroInfluencer-Linux-x86_64.tar.gz
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pywebview pyinstaller
+      - name: Build Windows EXE
+        run: |
+          pyinstaller --noconfirm --onedir --windowed `
+            --name "AeroInfluencer-Windows" `
+            --add-data "aero_engine;aero_engine" `
+            --add-data "assets;assets" `
+            desktop_app.py
+          Compress-Archive -Path dist/AeroInfluencer-Windows -DestinationPath dist/AeroInfluencer-Windows-x64.zip
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AeroInfluencer-Windows
+          path: dist/AeroInfluencer-Windows-x64.zip
+
+  create-release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+      - name: Publish Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            AeroInfluencer-Linux/AeroInfluencer-Linux-x86_64.tar.gz
+            AeroInfluencer-Windows/AeroInfluencer-Windows-x64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
