@@ -213,7 +213,7 @@ if "<uses-permission" not in text:
     text = text.replace("<application", permissions + "\n    <application")
 
 if "android:usesCleartextTraffic" not in text:
-    text = text.replace("<application", "<application\n        android:usesCleartextTraffic=\"true\"\n        android:extractNativeLibs=\"true\"")
+    text = text.replace("<application", "<application\n        android:usesCleartextTraffic=\"true\"")
 
 manifest_file.write_text(text, encoding="utf-8")
 print("AndroidManifest.xml updated with permissions and cleartextTraffic!")
