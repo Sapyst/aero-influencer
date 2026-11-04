@@ -95,10 +95,13 @@ def capture_smart_webpage(
     Spawns headless Firefox with Geckodriver, applies DOM Smart Auto-Framing
     to eliminate whitespace and overlays, then captures a clean screenshot.
     """
-    from selenium import webdriver
-    from selenium.webdriver.firefox.options import Options
-    from selenium.webdriver.firefox.service import Service
-    
+    try:
+        from selenium import webdriver
+        from selenium.webdriver.firefox.options import Options
+    except ImportError:
+        print("Selenium indisponível nesta plataforma; captura de página ignorada.")
+        return None
+
     options = Options()
     options.add_argument("--headless")
     

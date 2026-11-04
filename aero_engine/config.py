@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
+from aero_engine.compat import model_to_dict
 
 def get_base_dir() -> Path:
     if "AERO_BASE_DIR" in os.environ and Path(os.environ["AERO_BASE_DIR"]).exists():
@@ -105,7 +106,7 @@ def get_config() -> AeroConfig:
 def save_config(cfg: AeroConfig) -> None:
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-        json.dump(cfg.model_dump(), f, indent=2)
+        json.dump(model_to_dict(cfg), f, indent=2)
 
 def validate_gemini_api_key(api_key: str) -> dict:
     if not api_key or len(api_key.strip()) < 15:

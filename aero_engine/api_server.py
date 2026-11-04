@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
+from aero_engine.compat import model_to_dict
 from aero_engine.config import get_config, save_config, validate_gemini_api_key, AeroConfig, ASSETS_DIR
 from aero_engine.pipeline import run_pipeline
 from aero_engine.avatar_studio import (
@@ -87,9 +88,9 @@ class BenchmarkRequest(BaseModel):
 @app.get("/api/config")
 def api_get_config():
     cfg = get_config()
-    data = cfg.model_dump()
-    if data.get("google_gemini_api_key"):
-        raw_key = data["google_gemini_api_key"]
+    data = model_to_dict(cfg)
+    raw_key = data.pop("google_gemini_api_key", None)  # nunca devolver a chave inteira
+    if raw_key:
         data["has_api_key"] = True
         data["masked_key"] = raw_key[:4] + "..." + raw_key[-4:] if len(raw_key) > 8 else "***"
     else:
@@ -304,7 +305,7 @@ async def api_voice_benchmark(req: BenchmarkRequest, bg_tasks: BackgroundTasks):
 # ----------------- Scheduler & Autopilot -----------------
 @app.get("/api/scheduler")
 def api_get_scheduler():
-    return get_scheduler_config().model_dump()
+    return model_to_dict(get_scheduler_config())
 
 @app.post("/api/scheduler")
 def api_save_scheduler(sc: SchedulerConfig):
@@ -313,7 +314,7 @@ def api_save_scheduler(sc: SchedulerConfig):
         start_background_scheduler()
     else:
         stop_background_scheduler()
-    return {"status": "ok", "config": sc.model_dump()}
+    return {"status": "ok", "config": model_to_dict(sc)}
 
 # ----------------- Static UI Mount -----------------
 UI_DIR = Path(__file__).parent / "ui"

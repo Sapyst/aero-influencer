@@ -10,12 +10,23 @@ rm -rf android package.json package-lock.json node_modules /tmp/ffmpeg_extracted
 npm init -y
 npm install @capacitor/core @capacitor/cli @capacitor/android
 npx cap init "AeroInfluencer" "com.sapyst.aeroinfluencer" --web-dir aero_engine/ui
+# Capacitor: UI em http://localhost para poder chamar http://127.0.0.1:8000 (sem mixed content)
+rm -f capacitor.config.ts capacitor.config.js
+cat << 'CAPEOF' > capacitor.config.json
+{
+  "appId": "com.sapyst.aeroinfluencer",
+  "appName": "AeroInfluencer",
+  "webDir": "aero_engine/ui",
+  "server": { "androidScheme": "http", "cleartext": true },
+  "android": { "allowMixedContent": true }
+}
+CAPEOF
 echo "n" | npx cap add android
 
 # 3. Configure variables.gradle
 cat << 'EOF' > android/variables.gradle
 ext {
-    minSdkVersion = 24
+    minSdkVersion = 28  # libffmpeg.so é compilado para Android 28
     compileSdkVersion = 34
     targetSdkVersion = 34
     androidxActivityVersion = '1.9.2'
@@ -79,8 +90,8 @@ android {
         applicationId "com.sapyst.aeroinfluencer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 2
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "arm64-v8a"
@@ -92,6 +103,7 @@ android {
                 install "pydantic<2.0.0"
                 install "uvicorn"
                 install "pillow"
+                install "numpy"
                 install "requests"
                 install "edge-tts"
                 install "python-multipart"

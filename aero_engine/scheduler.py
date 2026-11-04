@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 from pydantic import BaseModel
+from aero_engine.compat import model_to_dict
 
 from aero_engine.config import get_config
 from aero_engine.pipeline import run_pipeline
@@ -39,7 +40,7 @@ def save_scheduler_config(sc: SchedulerConfig):
     import json
     SCHEDULER_CONFIG.parent.mkdir(parents=True, exist_ok=True)
     with open(SCHEDULER_CONFIG, "w", encoding="utf-8") as f:
-        json.dump(sc.model_dump(), f, indent=2)
+        json.dump(model_to_dict(sc), f, indent=2)
 
 async def _scheduler_loop():
     global _RUNNING
