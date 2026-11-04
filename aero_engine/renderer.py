@@ -72,7 +72,8 @@ def compose_final_video(
 
     filter_complex = (
         "[0:v][1:v]overlay=0:0[v_composed];"
-        f"[v_composed]subtitles={ass_subtitles.resolve()}[v_final];"
+        # Nome relativo + cwd: o parser de filtros quebra com ":" e "\\" de paths do Windows
+        f"[v_composed]subtitles=filename={ass_subtitles.name}[v_final];"
         "[2:a]volume=1.0[vocal];"
         f"[3:a]atrim=0:{total_duration:.2f},volume={music_volume},"
         f"afade=t=in:ss=0:d=1.5,afade=t=out:st={max(0, total_duration - 2.0):.2f}:d=2.0[music];"
@@ -81,18 +82,19 @@ def compose_final_video(
 
     cmd_final = [
         FFMPEG_BIN, "-y",
-        "-i", str(bg_video),
-        "-i", str(char_video),
-        "-i", str(voice_audio),
-        "-i", str(music_audio),
+        "-i", str(bg_video.resolve()),
+        "-i", str(char_video.resolve()),
+        "-i", str(voice_audio.resolve()),
+        "-stream_loop", "-1", "-i", str(music_audio.resolve()),
         "-filter_complex", filter_complex,
         "-map", "[v_final]",
         "-map", "[a_final]",
         "-c:v", "libx264", "-preset", "fast", "-crf", "19",
         "-c:a", "aac", "-b:a", "192k",
         "-shortest",
-        str(output_mp4)
+        str(output_mp4.resolve())
     ]
 
-    subprocess.run(cmd_final, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+    subprocess.run(cmd_final, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True,
+                   cwd=str(ass_subtitles.resolve().parent))
     return output_mp4

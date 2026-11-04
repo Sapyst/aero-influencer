@@ -5,6 +5,7 @@ import wave
 from pathlib import Path
 from typing import List, Dict, Tuple
 import numpy as np
+import edge_tts
 from aero_engine.config import FFMPEG_BIN
 try:
     from faster_whisper import WhisperModel
